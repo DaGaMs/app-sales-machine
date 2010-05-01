@@ -37,9 +37,16 @@ class Sale(AbstractReport):
 class Upgrade(AbstractReport):
 	pass
 
+class RankingGroup(db.Model):
+	date_created = db.DateTimeProperty(auto_now_add=True)
+	pid = db.StringProperty(multiline=False)
+
 class Ranking(db.Model):
 	date_created = db.DateTimeProperty(auto_now_add=True)
 	pid = db.StringProperty(multiline=False)
 	category = db.StringProperty(multiline=False)
 	country = db.StringProperty(multiline=False)
 	ranking = db.IntegerProperty()
+	group = db.ReferenceProperty(RankingGroup)
+
+

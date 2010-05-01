@@ -11,6 +11,7 @@ import locale
 import sys
 import os
 
+import logging
 import settings
 import models.data
 from chart import SalesChart
@@ -80,23 +81,22 @@ class EmailReport(webapp.RequestHandler):
 					upgrade_rate = 0
 
 			# Rankings
-			ranking_query = db.Query(models.data.Ranking)
-			ranking_query.order('-date_created')
-			ranking_query.filter('pid =', pid)
-			last_pull = ranking_query.get()
-			rankings = []
+			ranking_group_query = db.Query(models.data.RankingGroup)
+			ranking_group_query.order('-date_created')
+			ranking_group_query.filter('pid =', pid)
+			ranking_group = ranking_group_query.get()
 			last_pull_date = datetime.date.today()
-			if last_pull != None:
-				last_pull_date = last_pull.date_created
+			if ranking_group:
+				ranking_query = db.Query(models.data.Ranking)
+				ranking_query.filter('group =', ranking_group)
+				rankings = []
+				last_pull_date = ranking_group.date_created
 				# Look for rankings created within an hour range since the last pull
-				difference = datetime.timedelta(hours=-1)
-				one_hour_from_last_pull_date = last_pull_date + difference
-				ranking_query.filter('date_created <=', last_pull_date)
-				ranking_query.filter('date_created >=', one_hour_from_last_pull_date)
 				for ranking in ranking_query:
 					dict = {'country': ranking.country, 'category': ranking.category, 'ranking': ranking.ranking}
 					rankings.append(dict)
 				rankings = sorted(rankings, key=lambda k: k['country'])
+				logging.info(rankings)
 
 			overall_chart_url, concentrated_chart_url = SalesChart().units_chart(pid)
 			product = {

@@ -14,6 +14,7 @@ class RankingsJob(webapp.RequestHandler):
 
 	def get(self):
 		for pid in settings.PRODUCTS:
+			group = ranking_persister.persist_ranking_group(pid)
 			paid = settings.PRODUCTS[pid]['paid']
 			iPad = settings.PRODUCTS[pid]['iPad']
 			category = jobs.app_store_codes.CATEGORIES[settings.PRODUCTS[pid]['category_name']]
@@ -27,26 +28,26 @@ class RankingsJob(webapp.RequestHandler):
 				new_category['genreId'] = category['genreId']
 				category = new_category
 			# Queue requests for category rankings
-			self.fetch_rankings(pid, category)
+			self.fetch_rankings(pid, category, group)
 
 			# Queue requests for top 100 list
 			if iPad:
 				if paid:
-					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['iPad Top 100 Paid'])
+					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['iPad Top 100 Paid'], group)
 					# Queue requests for top grossing list
-					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['iPad Top 100 Grossing'])
+					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['iPad Top 100 Grossing'], group)
 				else:
-					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['iPad Top 100 Free'])
+					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['iPad Top 100 Free'], group)
 			else:
 				if paid:
-					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['Top 100 Paid'])
+					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['Top 100 Paid'], group)
 					# Queue requests for top grossing list
-					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['Top Grossing'])
+					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['Top Grossing'], group)
 				else:
-					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['Top 100 Free'])
+					self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES['Top 100 Free'], group)
 				
 
-	def fetch_rankings(self, pid, category):
+	def fetch_rankings(self, pid, category, group):
 		app_id = settings.PRODUCTS[pid]['app_id']
 
 		# Fetch ranking in each country for the application's category
@@ -54,6 +55,8 @@ class RankingsJob(webapp.RequestHandler):
 		countries_per_task = 3
 		count = 0
 		store_ids_to_process = []
+
+
 		for store_id in jobs.app_store_codes.COUNTRIES:
 			count += 1
 			store_ids_to_process.append(store_id)
@@ -67,6 +70,7 @@ class RankingsJob(webapp.RequestHandler):
 										'store_ids': ','.join(map(str, store_ids_to_process)),
 										'category_id': category['genreId'],
 										'pop_id': category['popId'],
+										'group_id': group.id(),
 										})
 				store_ids_to_process = []
 
@@ -85,13 +89,14 @@ class RankingsWorker(webapp.RequestHandler):
 		store_ids = string.split(self.request.get('store_ids'), ',')
 		category_id = int(self.request.get('category_id'))
 		pop_id = int(self.request.get('pop_id'))
+		group_id = int(self.request.get('group_id'))
 
 		for store_id in store_ids:
 			ranking = self.category_ranking(app_id, int(store_id), category_id, pop_id)
 
 			if ranking != None:
 				# Store this ranking
-				ranking_persister.persist_ranking(pid, ranking, jobs.app_store_codes.COUNTRIES[int(store_id)], self._category_name(category_id, pop_id))
+				ranking_persister.persist_ranking(pid, ranking, jobs.app_store_codes.COUNTRIES[int(store_id)], self._category_name(category_id, pop_id), group_id)
 
 	def category_ranking(self, app_id, store_id, category_id, pop_id):
 		# Append the store id to the URL because GAE caches the request otherwise
