@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+	<table>
+		<tr>
+			<th>Category</th>
+			<th>Country</th>
+			<th>Ranking</th>
+		</tr>
+		{% for ranking in rankings %} 
+		<tr>
+			<td>{{ ranking.category }}</td>
+			<td>{{ ranking.country }}</td>
+			<td>{{ ranking.ranking }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	<p>Last Updated: {{ last_checked }}</p>
+{% endblock %}
+	

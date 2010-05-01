@@ -16,8 +16,9 @@ def main():
 	application = webapp.WSGIApplication([('/', admin.RootHandler),
 											('/admin', admin.RootHandler),
 											('/admin/upload', admin.UploadHandler),
-                                            ('/admin/chart', admin.ChartHandler),
-									  		], debug=True)
+											('/admin/chart', admin.ChartHandler),
+											('/rankings', admin.RankingsHandler),
+								            ], debug=True)
 	wsgiref.handlers.CGIHandler().run(application)
 
 if __name__ == '__main__':

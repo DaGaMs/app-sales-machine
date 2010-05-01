@@ -1,3 +1,4 @@
+from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
@@ -8,6 +9,9 @@ import tarfile
 import settings
 from processors import report_persister
 from chart import SalesChart
+import models
+import datetime
+import logging
 
 PAGE_NAME = 'Admin'
 TEMPLATE_PATH = os.path.join(settings.SETTINGS['template_path'], 'admin.html')
@@ -48,6 +52,7 @@ class UploadHandler(webapp.RequestHandler):
 		self.response.out.write(template.render(TEMPLATE_PATH, template_values))
 
 class ChartHandler(webapp.RequestHandler):
+	@login_required
 	def get(self):
 		pid = self.request.get("pid", None)
 		if not pid:
@@ -55,3 +60,37 @@ class ChartHandler(webapp.RequestHandler):
 		overall_chart_url, concentrated_chart_url = SalesChart().units_chart(pid)
 
 		self.response.out.write("<img src='%s'/>" % overall_chart_url)
+
+class RankingsHandler(webapp.RequestHandler):
+	@login_required
+	def get(self):
+		pid = self.request.get("pid", None)
+		if not pid:
+			self.response.out.write("missing pid")
+			return
+
+		ranking_group_query = db.Query(models.data.RankingGroup)
+		ranking_group_query.order('-date_created')
+		ranking_group_query.filter('pid =', pid)
+		ranking_group = ranking_group_query.get()
+		last_pull_date = datetime.date.today()
+		rankings = []
+		if ranking_group:
+			ranking_query = db.Query(models.data.Ranking)
+			ranking_query.filter('group =', ranking_group)
+			last_pull_date = ranking_group.date_created
+			# Look for rankings created within an hour range since the last pull
+			for ranking in ranking_query:
+				dict = {'country': ranking.country, 'category': ranking.category, 'ranking': ranking.ranking}
+				rankings.append(dict)
+			rankings = sorted(rankings, key=lambda k: k['country'])
+		ranking_template = os.path.join(settings.SETTINGS['template_path'], 'rankings.html')
+
+		template_values = {
+			'company_name': settings.SETTINGS['company_name'],
+			'page_name': 'Rankings for %s' % pid,
+			'rankings': rankings,
+			'last_checked': last_pull_date
+		}
+		self.response.out.write(template.render(ranking_template, template_values))
+
