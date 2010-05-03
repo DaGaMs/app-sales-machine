@@ -1,3 +1,4 @@
+import logging
 import wsgiref.handlers
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
@@ -8,6 +9,7 @@ import string
 import settings
 import jobs.app_store_codes
 from processors import ranking_persister
+import alerts
 
 
 class RankingsJob(webapp.RequestHandler):
@@ -96,7 +98,10 @@ class RankingsWorker(webapp.RequestHandler):
 
 			if ranking != None:
 				# Store this ranking
-				ranking_persister.persist_ranking(pid, ranking, jobs.app_store_codes.COUNTRIES[int(store_id)], self._category_name(category_id, pop_id), group_id)
+				country = jobs.app_store_codes.COUNTRIES[int(store_id)]
+				#logging.info(locals())
+				alerts.ranking(pid, country, int(ranking))
+				ranking_persister.persist_ranking(pid, ranking, country, self._category_name(category_id, pop_id), group_id)
 
 	def category_ranking(self, app_id, store_id, category_id, pop_id):
 		# Append the store id to the URL because GAE caches the request otherwise

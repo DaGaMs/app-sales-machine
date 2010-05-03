@@ -55,3 +55,9 @@ PRODUCTS = {
 		]
 	}
 }
+
+PROWL_RANKING_ALERTS = {
+    '<<SKU>>' {
+        'United States': ('<<prowl api key>>',)
+    }
+}
