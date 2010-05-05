@@ -63,10 +63,12 @@ class RankingsJob(webapp.RequestHandler):
 		store_ids_to_process = []
 
 
-		for store_id in jobs.app_store_codes.COUNTRIES:
+		countries = settings.PRODUCTS[pid]['countries'] if settings.PRODUCTS[pid].has_key('countries') else jobs.app_store_codes.COUNTRIES
+		for store_id in countries:
+			logging.info(store_id)
 			count += 1
 			store_ids_to_process.append(store_id)
-			if count % countries_per_task == 0 or count == len(jobs.app_store_codes.COUNTRIES):
+			if count % countries_per_task == 0 or count == len(countries):
 				# Enqueue task and reset list
 				taskqueue.add(url='/jobs/pull_rankings/worker',
 								method='POST',
