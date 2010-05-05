@@ -12,6 +12,13 @@ indexes:
 
 - kind: Ranking
   properties:
+  - name: country
+  - name: pid
+  - name: date_created
+    direction: desc
+
+- kind: Ranking
+  properties:
   - name: pid
   - name: date_created
     direction: desc
