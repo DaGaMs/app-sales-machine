@@ -33,8 +33,8 @@ class RankingsJob(webapp.RequestHandler):
 			# Queue requests for category rankings
 			self.fetch_rankings(pid, category, group)
 
-			#if jobs.app_store_codes.CATEGORIES.has_key("%s Gross" % category_name):
-				#self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES["%s Gross" % category_name], group)
+			if jobs.app_store_codes.CATEGORIES.has_key("%s Gross" % category_name):
+				self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES["%s Gross" % category_name], group)
 
 			# Queue requests for top 100 list
 			if iPad:
@@ -89,6 +89,10 @@ class RankingsJob(webapp.RequestHandler):
 
 class RankingsWorker(webapp.RequestHandler):
 
+	def get(self):
+		#added for testing purposes
+		self.post()
+
 	def post(self):
 		pid = self.request.get('pid')
 		app_id = int(self.request.get('app_id'))
@@ -104,8 +108,9 @@ class RankingsWorker(webapp.RequestHandler):
 				# Store this ranking
 				country = jobs.app_store_codes.COUNTRIES[int(store_id)]
 				#logging.info(locals())
-				alerts.ranking(pid, country, int(ranking))
-				ranking_persister.persist_ranking(pid, ranking, country, self._category_name(category_id, pop_id), group_id)
+				category_name = self._category_name(category_id, pop_id)
+				alerts.ranking(pid, country, category_name, int(ranking))
+				ranking_persister.persist_ranking(pid, ranking, country, category_name, group_id)
 
 	def category_ranking(self, app_id, store_id, category_id, pop_id):
 		# Append the store id to the URL because GAE caches the request otherwise
@@ -139,9 +144,13 @@ class RankingsWorker(webapp.RequestHandler):
 		category_name = None
 		for name, category in jobs.app_store_codes.CATEGORIES.items():
 			if pop_id_search:
-				if category['genreId'] == category_id and category['popId'] == pop_id:
-					category_name = name
-					break
+				if category['genreId'] == category_id:
+					if not pop_id and not category.has_key("popId"):
+						category_name = name
+						break
+					elif pop_id and category.has_key("popId") and category["popId"] == pop_id:
+						category_name = name
+						break
 			else:
 				if category['genreId'] == category_id:
 					i += 1
@@ -150,7 +159,8 @@ class RankingsWorker(webapp.RequestHandler):
 		if i > 1:
 			# There is more than 1 category with the same id, so differentiate by popId as well
 			return self._category_name(category_id, pop_id, True)
-
+		elif category_name is None:
+			return self._category_name(category_id, None, True)
 		return category_name
 
 
