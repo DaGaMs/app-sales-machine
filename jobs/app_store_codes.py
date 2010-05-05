@@ -31,7 +31,14 @@ CATEGORIES = {
 								},
 				"Lifestyle"		: {
 									"genreId": 6012
-								}
+								},
+				"News"		  : {
+									"genreId": 6009
+								},
+                "News Gross"  : {
+                                    "genreId": 6009,
+                                    "popId": 46
+                                }
 		}
 COUNTRIES = {
 		143441 :"United States",
@@ -111,4 +118,4 @@ COUNTRIES = {
 		143512 :'Nicaragua',
 		143513 :'Paraguay', 
 		143514 :'Uruguay'
-		}
+}
