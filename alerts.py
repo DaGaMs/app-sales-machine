@@ -9,7 +9,7 @@ def ranking(pid, country, new_ranking):
 
 def ranking_prowl(pid, country, new_ranking):
 	if hasattr(settings, "PROWL_RANKING_ALERTS"):
-		if not settings.PROWL_RANKING_ALERTS.has_key(pid) and not settings.PROWL_RANKING_ALERTS[pid][country]:
+		if not settings.PROWL_RANKING_ALERTS.has_key(pid) or not settings.PROWL_RANKING_ALERTS[pid].has_key(country):
 			return
 		old_ranking = models.data.Ranking.all().filter("pid = ",pid).filter("country =", country).order("-date_created").get()
 		if not old_ranking:

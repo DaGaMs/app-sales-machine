@@ -19,7 +19,8 @@ class RankingsJob(webapp.RequestHandler):
 			group = ranking_persister.persist_ranking_group(pid)
 			paid = settings.PRODUCTS[pid]['paid']
 			iPad = settings.PRODUCTS[pid]['iPad']
-			category = jobs.app_store_codes.CATEGORIES[settings.PRODUCTS[pid]['category_name']]
+			category_name = settings.PRODUCTS[pid]['category_name']
+			category = jobs.app_store_codes.CATEGORIES[category_name]
 
 			if 'popId' not in category:
 				new_category = {}
@@ -31,6 +32,9 @@ class RankingsJob(webapp.RequestHandler):
 				category = new_category
 			# Queue requests for category rankings
 			self.fetch_rankings(pid, category, group)
+
+			#if jobs.app_store_codes.CATEGORIES.has_key("%s Gross" % category_name):
+				#self.fetch_rankings(pid, jobs.app_store_codes.CATEGORIES["%s Gross" % category_name], group)
 
 			# Queue requests for top 100 list
 			if iPad:
