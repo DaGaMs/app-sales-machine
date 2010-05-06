@@ -2,6 +2,7 @@ import wsgiref.handlers
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from django.utils import simplejson
+from chart import SalesChart
 import models.data
 import logging
 import datetime
@@ -49,9 +50,18 @@ class CurrentRankingsHandler(webapp.RequestHandler):
 			self.response.out.write(simplejson.dumps(rankings))
 
 
+class ChartHandler(webapp.RequestHandler):
+	def get(self):
+		pid = self.request.get("pid")
+
+		overall_chart_url, concentrated_chart_url = SalesChart().units_chart(pid)
+		
+		self.response.out.write(simplejson.dumps({ 'chart_url': overall_chart_url }))
+
 def main():
 	application = webapp.WSGIApplication([('/api/sales', DailyReportHandler),
 								('/api/rankings', CurrentRankingsHandler),
+								('/api/chart', ChartHandler),
 							], debug=True)
 	wsgiref.handlers.CGIHandler().run(application)
 

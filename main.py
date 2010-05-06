@@ -18,6 +18,7 @@ def main():
 											('/admin/upload', admin.UploadHandler),
 											('/admin/chart', admin.ChartHandler),
 											('/rankings', admin.RankingsHandler),
+                                            ('/i', admin.iPhoneHandler),
 								            ], debug=True)
 	wsgiref.handlers.CGIHandler().run(application)
 

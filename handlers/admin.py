@@ -94,3 +94,10 @@ class RankingsHandler(webapp.RequestHandler):
 		}
 		self.response.out.write(template.render(ranking_template, template_values))
 
+class iPhoneHandler(webapp.RequestHandler):
+    @login_required
+    def get(self):
+        pid = settings.PRODUCTS.keys()[0]
+        template_path = os.path.join(settings.SETTINGS['template_path'], 'iphone.html')
+        self.response.out.write(template.render(template_path, { 'pid': pid }))
+
