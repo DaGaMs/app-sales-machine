@@ -3,6 +3,11 @@ from google.appengine.ext import webapp
 from google.appengine.ext import db
 from django.utils import simplejson
 from chart import SalesChart
+from google.appengine.api import memcache
+import settings
+import sys
+sys.path.insert(0, settings.APP_ROOT_DIR + '/lib')
+from graphy.backends import google_chart_api
 import models.data
 import logging
 import datetime
@@ -15,7 +20,7 @@ class DailyReportHandler(webapp.RequestHandler):
 			query = models.data.Sale.all()
 		else:
 			query = models.data.Upgrade.all()
-		data = query.filter("pid = ", pid).order('-report_date').fetch(100)
+		data = query.filter("pid = ", pid).order('-report_date').fetch(20)
 
 		def sale_to_dict(sale):
 			return {
@@ -27,6 +32,22 @@ class DailyReportHandler(webapp.RequestHandler):
 
 		dict = [sale_to_dict(sale) for sale in data]
 		self.response.out.write(simplejson.dumps(dict))
+
+class TotalsReportHandler(webapp.RequestHandler):
+	def get(self):
+		pid = self.request.get('pid')
+		type = self.request.get('type', 'sales')
+		cache_key = "%s_total_%s" % (pid, type)
+		totals = memcache.get(cache_key)
+		if not totals:
+			if type == "sales":
+				totals = models.data.Sale.get_totals(pid)
+			else:
+				totals = models.data.Upgrade.get_totals(pid)
+			totals['revenue'] = "%.2f" % totals['revenue']
+			memcache.add(cache_key, totals, 60 * 60 *23)
+
+		self.response.out.write(simplejson.dumps(totals))
 
 class CurrentRankingsHandler(webapp.RequestHandler):
 	def get(self):
@@ -58,10 +79,31 @@ class ChartHandler(webapp.RequestHandler):
 		
 		self.response.out.write(simplejson.dumps({ 'chart_url': overall_chart_url }))
 
+class SparkLinesHandler(webapp.RequestHandler):
+	def get(self):
+		pid = self.request.get("pid")
+		type = self.request.get("type", "sales")
+		cache_key = "%s_sparklines_%s" % (pid, type)
+		chart_url = memcache.get(cache_key)
+		if not chart_url:
+			if type == "sales":
+				query = models.data.Sale.all()
+			else:
+				query = models.data.Upgrade.all()
+
+			data = query.filter("pid = ", pid).order('-report_date').fetch(20)
+			chart_data = [item.income_revenue for item in data]
+			chart = google_chart_api.Sparkline(chart_data)
+			chart_url = chart.display.Url(30, 15)
+			memcache.add(cache_key, chart_url, 60 * 60 * 23)
+		self.response.out.write(simplejson.dumps({ 'chart_url': chart_url}))
+
 def main():
 	application = webapp.WSGIApplication([('/api/sales', DailyReportHandler),
 								('/api/rankings', CurrentRankingsHandler),
 								('/api/chart', ChartHandler),
+								('/api/totals', TotalsReportHandler),
+								('/api/sparklines', SparkLinesHandler),
 							], debug=True)
 	wsgiref.handlers.CGIHandler().run(application)
 

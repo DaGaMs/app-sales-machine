@@ -9,7 +9,15 @@
 		<link rel="stylesheet" type="text/css" href="/ui/external/jqtouch/themes/apple/theme.min.css"/>
 		<script type="text/javascript">
 			var jQT = new $.jQTouch({
-
+				/*preloadImages: [
+					'/ui/external/jqtouch/themes/apple/img/back_button.png',
+					'/ui/external/jqtouch/themes/apple/img/back_button_clicked.png',
+					'/ui/external/jqtouch/themes/apple/img/button_clicked.png',
+					'/ui/external/jqtouch/themes/apple/img/grayButton.png',
+					'/ui/external/jqtouch/themes/apple/img/whiteButton.png',
+					'/ui/external/jqtouch/themes/apple/img/loading.gif'
+					]
+				*/
 			});
 			var processReport = function(element, type) {
 				$.getJSON("/api/chart", { pid: '{{ pid }}', type: type }, function(data) {
@@ -25,6 +33,9 @@
 				});
 			}
 			$(function() {
+				$.getJSON("/api/sparklines", { pid: '{{ pid }}' }, function(data) {
+					$("#home span.sparklines").html(String.format("<img src='{0}'/>", unescape(data.chart_url)));
+				});
 				$("#dailyUpgrades").bind("pageAnimationEnd", function(e, info) {
 					var self = this;
 					if (info.direction == "in") {
@@ -41,7 +52,7 @@
 					var self = this;
 					if (info.direction == "in") {
 						$.getJSON("/api/rankings", { pid: 'jga-mytimes' }, function(data) {
-							html = [];
+							var html = [];
 							for (var i = 0; i < data.rankings.length; i++) {
 								var ranking = data.rankings[i];
 								html.push(String.format("<li><span>{0} - {1}</span><small>{2}</small></li>", ranking.country, ranking.category, ranking.ranking));
@@ -50,9 +61,26 @@
 						});
 					}
 				});
+				$("#totals").bind("pageAnimationStart", function(e, info) {
+					var self = this;
+					if (info.direction == "in") {
+						$.getJSON("/api/totals", { pid: 'jga-mytimes' }, function(data) {
+							var html = [];
+							html.push(String.format("<li><span>{0}</span><small>{1}</small>", "Units", data['units']));
+							html.push(String.format("<li><span>{0}</span><small>{1}</small>", "Revenue", data['revenue']));
+							$("ul.Sales", self).html(html.join(''));
+						});
+						$.getJSON("/api/totals", { pid: 'jga-mytimes', type: 'upgrades' }, function(data) {
+							var html = [];
+							html.push(String.format("<li><span>{0}</span><small>{1}</small>", "Units", data['units']));
+							$("ul.Upgrades", self).html(html.join(''));
+						});
+					}
+				});
 			});
 		</script>
 		<style type="text/css">
+			#home ul li span.sparklines { float: right; width: 50px; margin: 5px 10px 0 0 ; }
 			.chart img { width: 100%; }
 			.Report li small { width: 150px; }
 			.Report li span { width: 120px; }
@@ -66,8 +94,9 @@
 				<h1>AppSales</h1>
 			</div>
 			<ul class="rounded">
-				<li class="arrow"><a href="#dailySales">Daily Sales</a></li>
-				<li class="arrow"><a href="#dailyUpgrades">Daily Upgrades</a></li>
+				<li class="arrow"><span class="sparklines"></span><a href="#dailySales">Daily Sales</a></li>
+				<li class="arrow"><span class="sparklines"></span><a href="#dailyUpgrades">Daily Upgrades</a></li>
+				<li class="arrow"><a href="#totals">Totals</a></li>
 			</ul>
 			<ul class="rounded">
 				<li class="arrow"><a href="#currentRankings">Current Rankings</a></li></li>
@@ -75,7 +104,7 @@
 		</div>
 		<div id="dailySales">
 			<div class="toolbar">
-			    <h1>Daily Sales Report</h1>
+				<h1>Daily Sales Report</h1>
 				<a href="#home" class="back">Home</a>
 			</div>
 			<div class="chart"></div>
@@ -85,13 +114,23 @@
 		</div>
 		<div id="dailyUpgrades">
 			<div class="toolbar">
-			    <h1>Daily Upgrades Report</h1>
+				<h1>Daily Upgrades Report</h1>
 				<a href="#home" class="back">Home</a>
 			</div>
 			<div class="chart"></div>
 			<ul class="Report edgetoedge">
 				<li><span>Loading...</span></li>
 			</ul>
+		</div>
+		<div id="totals">
+			<div class="toolbar">
+				<h1>Totals</h1>
+				<a href="#home" class="back">Home</a>
+			</div>
+			<h2>Sales</h2>
+			<ul class="Sales"></ul>
+			<h2>Upgrades</h2>
+			<ul class="Upgrades"></ul>
 		</div>
 		<div id="currentRankings">
 			<div class="toolbar">

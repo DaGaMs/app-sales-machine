@@ -27,8 +27,18 @@ class AbstractReport(db.Model):
 		f = StringIO.StringIO()
 		pickle.dump(x, f)
 		self._units_by_country = db.Blob(f.getvalue())
-   
+
 	units_by_country = property(lambda self:pickle.load(StringIO.StringIO(self._units_by_country)), _set_units_by_country)
+
+	@classmethod
+	def get_totals(cls, pid):
+		query = cls.all().filter("pid = ", pid)
+		data = { 'revenue': 0, 'units': 0 }
+		for item in query:
+			data['revenue'] += item.income_revenue
+			data['units'] += item.income_units
+
+		return data
 
 
 class Sale(AbstractReport):
