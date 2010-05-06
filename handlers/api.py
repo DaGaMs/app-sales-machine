@@ -19,7 +19,7 @@ class DailyReportHandler(webapp.RequestHandler):
 
 		def sale_to_dict(sale):
 			return {
-				'revenue': sale.income_revenue,
+				'revenue': "%.2f" % sale.income_revenue,
 				'units': sale.income_units,
 				'pid': sale.pid,
 				'report_date': str(sale.report_date.date())
