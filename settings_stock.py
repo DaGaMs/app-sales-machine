@@ -53,6 +53,17 @@ PRODUCTS = {
 		"to_addresses": [
 			'Recipient Name <recipient@example.com>',
 		]
+        #itunes store url (for ratings, ie http://itunes.apple.com/us/app/my-times/id368515340?mt=8)
+        "url": "<< itunes store url >>",
+
+        # Optionally just pull data from certain countries (for ratings and rankings)
+        "countries": {
+            143441 :"United States",
+            143460 :"Australia",
+            143455 :"Canada",
+            143462 :"Japan",
+            143444 :"United Kingdom",
+        }
 	}
 }
 
