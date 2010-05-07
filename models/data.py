@@ -60,3 +60,18 @@ class Ranking(db.Model):
 	group = db.ReferenceProperty(RankingGroup)
 
 
+class Rating(db.Model):
+	date_created = db.DateTimeProperty(auto_now_add = True)
+	pid = db.StringProperty(multiline=False)
+	country = db.StringProperty(multiline=False)
+	total_stars = db.StringProperty()
+	total_ratings = db.IntegerProperty()
+	five_star_count = db.IntegerProperty()
+	four_star_count = db.IntegerProperty()
+	three_star_count = db.IntegerProperty()
+	two_star_count = db.IntegerProperty()
+	one_star_count = db.IntegerProperty()
+
+	@classmethod
+	def get_current(cls, pid, country):
+		return cls.all().filter("pid =", pid).filter("country =", country).order("-date_created").get()

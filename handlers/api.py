@@ -91,8 +91,9 @@ class SparkLinesHandler(webapp.RequestHandler):
 			else:
 				query = models.data.Upgrade.all()
 
-			data = query.filter("pid = ", pid).order('-report_date').fetch(20)
-			chart_data = [item.income_revenue for item in data]
+			data = query.filter("pid = ", pid).order('report_date').fetch(20)
+			chart_data = [item.income_units for item in data]
+			logging.info(chart_data)
 			chart = google_chart_api.Sparkline(chart_data)
 			chart_url = chart.display.Url(30, 15)
 			memcache.add(cache_key, chart_url, 60 * 60 * 23)

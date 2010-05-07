@@ -37,6 +37,13 @@ indexes:
   - name: date_created
     direction: desc
 
+- kind: Rating
+  properties:
+  - name: country
+  - name: pid
+  - name: date_created
+    direction: desc
+
 - kind: Sale
   properties:
   - name: pid

@@ -19,6 +19,14 @@ handlers:
   script: /jobs/pull_report.py
   login: admin
 
+- url: /jobs/pull_ratings
+  script: /jobs/pull_ratings.py
+  login: admin
+
+- url: /jobs/pull_ratings/worker
+  script: /jobs/pull_ratings.py
+  login: admin
+
 - url: /jobs/email_report
   script: /jobs/email_report.py
   login: admin

@@ -2,14 +2,19 @@ cron:
 - description: Daily report pull
   url: /jobs/pull_report
   schedule: every day 06:00
-  timezone: Australia/Sydney
+  timezone: America/Los_Angeles 
 
 - description: Rankings pull
   url: /jobs/pull_rankings
-  schedule: every 8 hours   # Must be larger than 1 hour, see email_report.py
-  timezone: Australia/Sydney
+  schedule: every 1 hours   # Must be larger than 1 hour, see email_report.py
+  timezone: America/Los_Angeles 
+
+- description: Ratings pull
+  url: /jobs/pull_ratings
+  schedule: every 1 hours
+  timezone: America/Los_Angeles 
 
 - description: Daily report email push
   url: /jobs/email_report
-  schedule: every day 07:00
-  timezone: Australia/Sydney
+  schedule: every day 06:30
+  timezone: America/Los_Angeles 

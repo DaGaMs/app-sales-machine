@@ -34,8 +34,12 @@
 			}
 			$(function() {
 				$.getJSON("/api/sparklines", { pid: '{{ pid }}' }, function(data) {
-					$("#home span.sparklines").html(String.format("<img src='{0}'/>", unescape(data.chart_url)));
+					$("#home span.sparklines:eq(0)").html(String.format("<img src='{0}'/>", unescape(data.chart_url)));
 				});
+				$.getJSON("/api/sparklines", { pid: '{{ pid }}', type: 'upgrades' }, function(data) {
+					$("#home span.sparklines:eq(1)").html(String.format("<img src='{0}'/>", unescape(data.chart_url)));
+				});
+
 				$("#dailyUpgrades").bind("pageAnimationEnd", function(e, info) {
 					var self = this;
 					if (info.direction == "in") {
