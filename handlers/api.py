@@ -99,12 +99,34 @@ class SparkLinesHandler(webapp.RequestHandler):
 			memcache.add(cache_key, chart_url, 60 * 60 * 23)
 		self.response.out.write(simplejson.dumps({ 'chart_url': chart_url}))
 
+class RatingsHandler(webapp.RequestHandler):
+    def get(self):
+        pid = self.request.get('pid')
+        country = self.request.get('country', 'United States')
+        rating = models.data.Rating.get_current(pid, country)
+        if not rating:
+            return
+        rating_dict = {
+            'date_created': str(rating.date_created),
+            'pid': rating.pid,
+            'country': rating.country,
+            'total_stars': rating.total_stars,
+            'total_ratings': rating.total_ratings,
+            'five_star_count': rating.five_star_count,
+            'four_star_count': rating.four_star_count,
+            'three_star_count': rating.three_star_count,
+            'two_star_count': rating.two_star_count,
+            'one_star_count': rating.one_star_count,
+        }
+        self.response.out.write(simplejson.dumps(rating_dict))
+
 def main():
 	application = webapp.WSGIApplication([('/api/sales', DailyReportHandler),
 								('/api/rankings', CurrentRankingsHandler),
 								('/api/chart', ChartHandler),
 								('/api/totals', TotalsReportHandler),
 								('/api/sparklines', SparkLinesHandler),
+								('/api/ratings', RatingsHandler),
 							], debug=True)
 	wsgiref.handlers.CGIHandler().run(application)
 

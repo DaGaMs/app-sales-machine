@@ -55,7 +55,7 @@
 				$("#currentRankings").bind("pageAnimationStart", function(e, info) {
 					var self = this;
 					if (info.direction == "in") {
-						$.getJSON("/api/rankings", { pid: 'jga-mytimes' }, function(data) {
+						$.getJSON("/api/rankings", { pid: '{{ pid }}' }, function(data) {
 							var html = [];
 							for (var i = 0; i < data.rankings.length; i++) {
 								var ranking = data.rankings[i];
@@ -68,16 +68,33 @@
 				$("#totals").bind("pageAnimationStart", function(e, info) {
 					var self = this;
 					if (info.direction == "in") {
-						$.getJSON("/api/totals", { pid: 'jga-mytimes' }, function(data) {
+						$.getJSON("/api/totals", { pid: '{{ pid }}' }, function(data) {
 							var html = [];
 							html.push(String.format("<li><span>{0}</span><small>{1}</small>", "Units", data['units']));
 							html.push(String.format("<li><span>{0}</span><small>{1}</small>", "Revenue", data['revenue']));
 							$("ul.Sales", self).html(html.join(''));
 						});
-						$.getJSON("/api/totals", { pid: 'jga-mytimes', type: 'upgrades' }, function(data) {
+						$.getJSON("/api/totals", { pid: '{{ pid }}', type: 'upgrades' }, function(data) {
 							var html = [];
 							html.push(String.format("<li><span>{0}</span><small>{1}</small>", "Units", data['units']));
 							$("ul.Upgrades", self).html(html.join(''));
+						});
+					}
+				});
+				$("#ratings").bind("pageAnimationStart", function(e, info) {
+					var self = this;
+					if (info.direction == "in") {
+						$.getJSON("/api/ratings", { pid: '{{ pid }}' }, function(data) {
+							var html = [];
+							var li = "<li><span>{0}</span><small>{1}</small>";
+							var totals = String.format(li, data.total_stars + " Stars", data.total_ratings);
+							$("ul:eq(0)", self).html(totals);
+							html.push(String.format(li, "&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;", data.five_star_count));
+							html.push(String.format(li, "&#x2605;&#x2605;&#x2605;&#x2605;", data.four_star_count));
+							html.push(String.format(li, "&#x2605;&#x2605;&#x2605;", data.three_star_count));
+							html.push(String.format(li, "&#x2605;&#x2605;", data.two_star_count));
+							html.push(String.format(li, "&#x2605;", data.one_star_count));
+							$("ul:eq(1)", self).html(html.join(''));
 						});
 					}
 				});
@@ -104,6 +121,9 @@
 			</ul>
 			<ul class="rounded">
 				<li class="arrow"><a href="#currentRankings">Current Rankings</a></li></li>
+			</ul>
+			<ul class="rounded">
+			    <li class="arrow"><a href="#ratings">Ratings</a></li>
 			</ul>
 		</div>
 		<div id="dailySales">
@@ -144,6 +164,17 @@
 			<ul class="edgetoedge">
 				<li><span>Loading...</span></li>
 			</ul>
+		</div>
+		<div id="ratings">
+			<div class="toolbar">
+			    <h1>Ratings</h1>
+			    <a href="#home" class="back">Home</a>
+			</div>
+			<h2>Total Rating</h2>
+			<ul class="rounded">
+			    <li><span>Loading...</span></li>
+			</ul>
+			<ul class="rounded"></ul>
 		</div>
 	</body>
 </html>

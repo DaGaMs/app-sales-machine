@@ -26,12 +26,17 @@ def store_ratings(pid, store_id):
 							headers=headers)
 	html = response.content
 	country = jobs.app_store_codes.COUNTRIES[int(store_id)]
+
 	if html.find("ratings-histogram") == -1:
 		return None
-	stars, total_number_of_ratings = re.compile("ratings-histogram.*?aria-label='(.*?) stars?, All Versions: (.*?) Ratings'", re.S).findall(html)[0]
 
-	votes = re.compile("class=\"vote\" .*?aria-label='(.*?) stars?, (.*?) ratings").findall(html)
-	#print stars, total_number_of_ratings, votes
+	def parse(html):
+		total_number_of_ratings, stars = re.compile("Versions: (.*?) Ratings.*?aria-label='(.*?) star", re.S).findall(html)[0]
+
+		votes = re.compile("class=\"vote\" .*?aria-label='(.*?) stars?, (.*?) ratings").findall(html)
+		return stars, total_number_of_ratings, votes
+	ratings_html = re.compile("All Versions.*?center-stack", re.S).findall(html)[0]
+	stars, total_number_of_ratings, votes = parse(ratings_html)
 	persist_rating(pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
 
 class RatingsJob(webapp.RequestHandler):
