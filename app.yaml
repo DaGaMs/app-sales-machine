@@ -43,6 +43,11 @@ handlers:
   script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
   login: admin
 
+- url: /(.*\.manifest)
+  static_files: manifests/\1
+  upload: manifests/(.*\.manifest)
+  mime_type: text/cache-manifest
+
 - url: .*
   script: main.py
   login: admin

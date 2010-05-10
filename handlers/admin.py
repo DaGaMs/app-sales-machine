@@ -101,3 +101,5 @@ class iPhoneHandler(webapp.RequestHandler):
 		template_path = os.path.join(settings.SETTINGS['template_path'], 'iphone.html')
 		self.response.out.write(template.render(template_path, { 'pid': pid }))
 
+
+
