@@ -9,7 +9,7 @@ from graphy import formatters
 from graphy import line_chart
 
 class SalesChart(object):
-	def units_chart(self, pid):
+	def units_chart(self, pid, type = 'sales'):
 		overall_chart = google_chart_api.LineChart()
 
 		sales_query = db.Query(models.data.Sale)
@@ -26,14 +26,14 @@ class SalesChart(object):
 		dates = [date.strftime('%d %b') for date in dates]
 
 		# Add sales line
-		overall_chart.AddLine(sales, width=line_chart.LineStyle.THICK, label='Sales')
+		overall_chart.AddLine(sales, width=line_chart.LineStyle.THICK)
 
 		# Determine if an upgrades line needs to be drawn
 		sales_start = sales_query.get().report_date
 		# Use settings file as the definitive source of upgrade start date because iTunes Connect sometimes reports false upgrade numbers
 		versions = settings.PRODUCTS[pid]['versions']
 		upgrades = []
-		if len(versions) > 1:
+		if False and len(versions) > 1:
 			# Convert to datetime to allow for timedelta calculation
 			upgrades_start = datetime.datetime.combine(versions[1]['date'], datetime.time(sales_start.hour, sales_start.minute))
 			difference_in_days = (upgrades_start - sales_start).days
@@ -49,7 +49,7 @@ class SalesChart(object):
 			for upgrade in upgrades_query:
 				upgrades.append(upgrade.income_units)
 			# Add upgrades line
-			overall_chart.AddLine(upgrades, width=line_chart.LineStyle.THICK, label='Upgrades')
+			#overall_chart.AddLine(upgrades, width=line_chart.LineStyle.THICK, label='Upgrades')
 
 		# Add horizontal labels
 		max_num_horizontal_labels = 15
@@ -76,8 +76,10 @@ class SalesChart(object):
 			max_upgrades = max(upgrades)
 			min_upgrades = min(upgrades)
 
-		overall_chart.left.max = max_upgrades if max_upgrades > max_sales else max_sales
-		overall_chart.left.min = min_upgrades if min_upgrades < min_sales else min_sales
+		#overall_chart.left.max = max_upgrades if max_upgrades > max_sales else max_sales
+		#overall_chart.left.min = min_upgrades if min_upgrades < min_sales else min_sales
+		overall_chart.left.max = max_sales
+		overall_chart.left.min = min_sales
 		vertical_labels = []
 		segment_gap = overall_chart.left.max / max_num_vertical_labels
 		for i in range(0, max_num_vertical_labels + 1):

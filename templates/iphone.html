@@ -20,9 +20,11 @@
 				*/
 			});
 			var processReport = function(element, type) {
-				$.getJSON("/api/chart", { pid: '{{ pid }}', type: type }, function(data) {
-					$(".chart", element).html('').append(String.format("<img src='{0}'/>", data.chart_url));
-				});
+				if (type == 'sales') {
+					$.getJSON("/api/chart", { pid: '{{ pid }}', type: type }, function(data) {
+						$(".chart", element).html('').append(String.format("<img src='{0}'/>", data.chart_url));
+					});
+				}
 				$.getJSON("/api/sales", { pid: '{{ pid }}', type: type }, function(data) {
 					html = [];
 					for (var i = 0; i < data.length; i++) {
