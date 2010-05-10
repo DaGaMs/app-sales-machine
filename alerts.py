@@ -17,4 +17,4 @@ def ranking_prowl(pid, country, category_name, new_ranking):
 		if old_ranking.ranking != new_ranking:
 			for prowl_api_key in settings.PROWL_RANKING_ALERTS[pid][country]:
 				p = Prowl(prowl_api_key)
-				p.post("AppSales", event = "Ranking Changed", description = "%s is now ranked #%s in %s in %s" % (settings.PRODUCTS[pid]["name"], new_ranking, category_name, country))
+				p.post("AppSales", event = "Ranking Changed", description = "%s moved from #%s to #%s in %s in %s" % (settings.PRODUCTS[pid]["name"], old_ranking.ranking, new_ranking, category_name, country))
