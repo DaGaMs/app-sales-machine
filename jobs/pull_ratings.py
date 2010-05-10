@@ -37,7 +37,9 @@ def store_ratings(pid, store_id):
 		return stars, total_number_of_ratings, votes
 	ratings_html = re.compile("All Versions.*?center-stack", re.S).findall(html)[0]
 	stars, total_number_of_ratings, votes = parse(ratings_html)
-	persist_rating(pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
+	args = (pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
+	alerts.ratings(*args)
+	persist_rating(*args)
 
 class RatingsJob(webapp.RequestHandler):
 	def get(self):

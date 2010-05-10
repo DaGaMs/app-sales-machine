@@ -72,3 +72,9 @@ PROWL_RANKING_ALERTS = {
         'United States': ('<<prowl api key>>',)
     }
 }
+
+PROWL_RATING_ALERTS = {
+    '<<SKU>>' {
+        'United States': ('<<prowl api key>>',)
+    }
+}
