@@ -141,8 +141,8 @@ class EmailReport(webapp.RequestHandler):
 		locale.setlocale(locale.LC_ALL,"")
 		return locale.format('%d', number, True)
 	def send_email(self, pid, subject, email_body):
-        if len(settings.PRODUCTS[pid]['to_addresses']) == 0:
-            return
+		if len(settings.PRODUCTS[pid]['to_addresses']) == 0:
+			return
 		message = mail.EmailMessage(sender=settings.SETTINGS['admin_email_address'],
 									subject=subject)
 		message.to = settings.PRODUCTS[pid]['to_addresses']

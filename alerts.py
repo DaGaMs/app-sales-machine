@@ -31,15 +31,15 @@ def ratings(pid, country, stars, count, five_star_count, four_star_count, three_
 			changes = []
 			text = "%(count)s (%(diff)s)"
 			if old_rating.five_star_count != five_star_count:
-				changes.append(text % { 'count': 5, 'diff': old_rating.five_star_count - five_star_count })
+				changes.append(text % { 'count': 5, 'diff': five_star_count - old_rating.five_star_count })
 			if old_rating.four_star_count != four_star_count:
-				changes.append(text % { 'count': 4, 'diff': old_rating.four_star_count - four_star_count })
+				changes.append(text % { 'count': 4, 'diff': four_star_count - old_rating.four_star_count })
 			if old_rating.three_star_count != three_star_count:
-				changes.append(text % { 'count': 3, 'diff': old_rating.three_star_count - three_star_count })
+				changes.append(text % { 'count': 3, 'diff': three_star_count - old_rating.three_star_count })
 			if old_rating.two_star_count != two_star_count:
-				changes.append(text % { 'count': 2, 'diff': old_rating.two_star_count - two_star_count })
+				changes.append(text % { 'count': 2, 'diff': two_star_count - old_rating.two_star_count })
 			if old_rating.one_star_count != one_star_count:
-				changes.append(text % { 'count': 1, 'diff': old_rating.one_star_count - one_star_count })
+				changes.append(text % { 'count': 1, 'diff': one_star_count - old_rating.one_star_count })
 			for prowl_api_key in settings.PROWL_RATING_ALERTS[pid][country]:
 				p = Prowl(prowl_api_key)
 				p.post("AppSales", event = "Rating Changed", description = \
