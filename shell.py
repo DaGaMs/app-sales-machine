@@ -6,9 +6,8 @@ import sys
 
 ## Application specific
 SDK_DIR = '/usr/local/google_appengine'
-APP_DIR = '/Users/gregamel/Dropbox/code/app-sales-machine/'
+APP_DIR = os.getcwd()
 APPID = 'jgaappsales'
-
 REMOTE_API_PATH = '/remote_api'
 
 ## Extra paths to be inserted into sys.path,
@@ -32,7 +31,8 @@ def attach(host=None):
         if host and host.startswith('localhost'):
             return ('foo', 'bar')
         else:
-            return (EMAIL, getpass.getpass())
+            email = raw_input("Email: ")
+            return (email, getpass.getpass())
     remote_api_stub.ConfigureRemoteApi(APPID, REMOTE_API_PATH, auth_func, host)
     remote_api_stub.MaybeInvokeAuthentication()
     os.environ['SERVER_SOFTWARE'] = 'Development (remote_api)/1.0'

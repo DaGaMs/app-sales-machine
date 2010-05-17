@@ -72,6 +72,9 @@ class Rating(db.Model):
 	two_star_count = db.IntegerProperty()
 	one_star_count = db.IntegerProperty()
 
+	def __str__(self):
+		return "%s: %s %s (%s)" % (self.pid, self.country, self.total_stars, self.total_ratings)
+
 	@classmethod
 	def get_current(cls, pid, country):
 		return cls.all().filter("pid =", pid).filter("country =", country).order("-date_created").get()
