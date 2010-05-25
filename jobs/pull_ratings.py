@@ -14,7 +14,8 @@ from processors.rating_persistor import persist_rating
 
 def store_ratings(pid, store_id):
 	user_agent = "iTunes/4.2 (Macintosh; U; PPC Mac OS X 10.2"
-	url = settings.PRODUCTS[pid]['url']
+	#url = settings.PRODUCTS[pid]['url']
+	url = "http://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/customerReviews?displayable-kind=11&id=%s" % settings.PRODUCTS[pid]['app_id']
 	headers = {
 				'User-Agent': user_agent,
 				'X-Apple-Store-Front': "%d-1,5" % store_id,
@@ -26,18 +27,18 @@ def store_ratings(pid, store_id):
 							headers=headers)
 	html = response.content
 	country = jobs.app_store_codes.COUNTRIES[int(store_id)]
-
 	if html.find("ratings-histogram") == -1:
 		return None
 
 	def parse(html):
-		total_number_of_ratings, stars = re.compile("Versions: (.*?) Ratings.*?aria-label='(.*?) star", re.S).findall(html)[0]
+		stars, total_number_of_ratings = re.compile("rating.*?aria-label='(.*?) star.*?rating-count.>(.*?) Ratings", re.S).findall(html)[0]
 
 		votes = re.compile("class=\"vote\" .*?aria-label='(.*?) stars?, (.*?) ratings").findall(html)
 		return stars, total_number_of_ratings, votes
-	ratings_html = re.compile("All Versions.*?center-stack", re.S).findall(html)[0]
+	ratings_html = re.compile("all versions:.*?rating-url", re.S).findall(html)[0]
 	stars, total_number_of_ratings, votes = parse(ratings_html)
 	args = (pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
+	logging.info(args)
 	alerts.ratings(*args)
 	persist_rating(*args)
 
@@ -68,9 +69,7 @@ class RatingsJob(webapp.RequestHandler):
 class RatingsWorker(webapp.RequestHandler):
 	def post(self):
 		pid = self.request.get("pid")
-		logging.info(self.request.get("store_ids"))
 		store_ids = self.request.get("store_ids", ",").split(",")
-		logging.info(store_ids)
 		for store_id in store_ids:
 			store_ratings(pid, int(store_id))
 
