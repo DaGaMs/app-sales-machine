@@ -45,7 +45,7 @@ class TotalsReportHandler(webapp.RequestHandler):
 			else:
 				totals = models.data.Upgrade.get_totals(pid)
 			totals['revenue'] = "%.2f" % totals['revenue']
-			memcache.add(cache_key, totals, 60 * 60 *23)
+			memcache.add(cache_key, totals, 60 * 60)
 
 		self.response.out.write(simplejson.dumps(totals))
 
@@ -96,7 +96,7 @@ class SparkLinesHandler(webapp.RequestHandler):
 			logging.info(chart_data)
 			chart = google_chart_api.Sparkline(chart_data)
 			chart_url = chart.display.Url(30, 15)
-			memcache.add(cache_key, chart_url, 60 * 60 * 23)
+			memcache.add(cache_key, chart_url, 60 * 60)
 		self.response.out.write(simplejson.dumps({ 'chart_url': chart_url}))
 
 class RatingsHandler(webapp.RequestHandler):

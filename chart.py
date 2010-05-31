@@ -91,10 +91,12 @@ class SalesChart(object):
 
 		# Build concentrated chart if there is enough data for one
 		concentrated_chart = self.concentrated_units_chart(sales, upgrades, dates)
+		chart_height = 300
+		chart_width = 500
 		if concentrated_chart != None:
-			concentrated_chart = concentrated_chart.display.Url(1000, 300)
+			concentrated_chart = concentrated_chart.display.Url(chart_width, chart_height)
 
-		return (overall_chart.display.Url(1000, 300), concentrated_chart)
+		return (overall_chart.display.Url(chart_width, chart_height), concentrated_chart)
 
 	def concentrated_units_chart(self, sales, upgrades, dates):
 		# Want results for the last 2 weeks

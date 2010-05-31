@@ -28,7 +28,7 @@
 	<p>Rankings (as of {{ rankings_pull_date }} UTC):</p>
 
 	{% if rankings %}
-		<table width="50%">
+		<table width="100%">
 			<tr align="left">
 				<th>Country</th>
 				<th>Category</th>
@@ -44,6 +44,37 @@
 		</table>
 	{% else %}
 		<p><i>No rankings available.</i></p>
+	{% endif %}
+
+	<p>Ratings</p>
+	{% if ratings %}
+		{% for rating in ratings %}
+			<p><b>{{ rating.country }} - {{ rating.total_stars}} Stars ({{ rating.total_ratings }})</b></p>
+			<table width="100%">
+			    <tr>
+			        <td>5 Stars</td>
+					<td>{{ rating.five_star_count }}</td>
+			    </tr>
+			    <tr>
+			        <td>4 Stars</td>
+					<td>{{ rating.four_star_count }}</td>
+			    </tr>
+			    <tr>
+			        <td>3 Stars</td>
+					<td>{{ rating.three_star_count }}</td>
+			    </tr>
+			    <tr>
+			        <td>2 Stars</td>
+					<td>{{ rating.two_star_count }}</td>
+			    </tr>
+			    <tr>
+			        <td>1 Star</td>
+					<td>{{ rating.one_star_count }}</td>
+			    </tr>
+			</table>
+		{% endfor %}
+	{% else %}
+		<p><i>No ratings available</i></p>
 	{% endif %}
 
 	<h3>Graphs</h3>

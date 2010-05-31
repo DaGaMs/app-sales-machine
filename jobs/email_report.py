@@ -98,6 +98,14 @@ class EmailReport(webapp.RequestHandler):
 				rankings = sorted(rankings, key=lambda k: k['country'])
 				logging.info(rankings)
 
+			# Ratings
+			countries = settings.PRODUCTS[pid]['countries'] if settings.PRODUCTS[pid].has_key('countries') else jobs.app_store_codes.COUNTRIES
+			ratings = []
+			for country_id, country in countries.items():
+				latest_ratings = models.data.Rating.get_current(pid = pid, country = country)
+				if latest_ratings:
+					ratings.append(latest_ratings)
+
 			overall_chart_url, concentrated_chart_url = SalesChart().units_chart(pid)
 			product = {
 					'name': product_name,
@@ -117,13 +125,18 @@ class EmailReport(webapp.RequestHandler):
 					'rankings': rankings,
 					'overall_chart_url': overall_chart_url,
 					'concentrated_chart_url': concentrated_chart_url,
+					'ratings': ratings,
 					}
 
 			path = os.path.join(settings.SETTINGS['template_path'], 'report.html')
 			email_body = template.render(path, product)
 
 			subject = '%s %s App Store report' % (datetime.date.today().strftime('%Y%m%d'), product['name'])
-			self.send_email(pid, subject, email_body)
+			send_email = self.request.get("email", "true")
+			if send_email == "true":
+				self.send_email(pid, subject, email_body)
+			else:
+				self.response.out.write(email_body)
 
 	def _total_income_units(self, reports):
 		total = 0
