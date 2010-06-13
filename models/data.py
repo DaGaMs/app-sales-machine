@@ -51,6 +51,10 @@ class RankingGroup(db.Model):
 	date_created = db.DateTimeProperty(auto_now_add=True)
 	pid = db.StringProperty(multiline=False)
 
+	@classmethod
+	def get_current(cls, pid):
+		return cls.all().filter('pid =', pid).order('-date_created').get()
+
 class Ranking(db.Model):
 	date_created = db.DateTimeProperty(auto_now_add=True)
 	pid = db.StringProperty(multiline=False)
@@ -58,7 +62,6 @@ class Ranking(db.Model):
 	country = db.StringProperty(multiline=False)
 	ranking = db.IntegerProperty()
 	group = db.ReferenceProperty(RankingGroup)
-
 
 class Rating(db.Model):
 	date_created = db.DateTimeProperty(auto_now_add = True)

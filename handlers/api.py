@@ -52,16 +52,11 @@ class TotalsReportHandler(webapp.RequestHandler):
 class CurrentRankingsHandler(webapp.RequestHandler):
 	def get(self):
 		pid = self.request.get("pid")
-
-		ranking_group_query = db.Query(models.data.RankingGroup)
-		ranking_group_query.order('-date_created')
-		ranking_group_query.filter('pid =', pid)
-		ranking_group = ranking_group_query.get()
 		last_pull_date = datetime.date.today()
 		rankings = []
+		ranking_group = models.data.RankingGroup.get_current(pid)
 		if ranking_group:
-			ranking_query = db.Query(models.data.Ranking)
-			ranking_query.filter('group =', ranking_group)
+			ranking_query = ranking_group.ranking_set
 			last_pull_date = ranking_group.date_created
 			# Look for rankings created within an hour range since the last pull
 			for ranking in ranking_query:
@@ -100,25 +95,25 @@ class SparkLinesHandler(webapp.RequestHandler):
 		self.response.out.write(simplejson.dumps({ 'chart_url': chart_url}))
 
 class RatingsHandler(webapp.RequestHandler):
-    def get(self):
-        pid = self.request.get('pid')
-        country = self.request.get('country', 'United States')
-        rating = models.data.Rating.get_current(pid, country)
-        if not rating:
-            return
-        rating_dict = {
-            'date_created': str(rating.date_created),
-            'pid': rating.pid,
-            'country': rating.country,
-            'total_stars': rating.total_stars,
-            'total_ratings': rating.total_ratings,
-            'five_star_count': rating.five_star_count,
-            'four_star_count': rating.four_star_count,
-            'three_star_count': rating.three_star_count,
-            'two_star_count': rating.two_star_count,
-            'one_star_count': rating.one_star_count,
-        }
-        self.response.out.write(simplejson.dumps(rating_dict))
+	def get(self):
+		pid = self.request.get('pid')
+		country = self.request.get('country', 'United States')
+		rating = models.data.Rating.get_current(pid, country)
+		if not rating:
+			return
+		rating_dict = {
+			'date_created': str(rating.date_created),
+			'pid': rating.pid,
+			'country': rating.country,
+			'total_stars': rating.total_stars,
+			'total_ratings': rating.total_ratings,
+			'five_star_count': rating.five_star_count,
+			'four_star_count': rating.four_star_count,
+			'three_star_count': rating.three_star_count,
+			'two_star_count': rating.two_star_count,
+			'one_star_count': rating.one_star_count,
+		}
+		self.response.out.write(simplejson.dumps(rating_dict))
 
 def main():
 	application = webapp.WSGIApplication([('/api/sales', DailyReportHandler),
