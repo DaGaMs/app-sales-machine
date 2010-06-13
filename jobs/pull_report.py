@@ -25,17 +25,17 @@ class ReportJob(webapp.RequestHandler):
 		print date
 		# Fetch for all available accounts
 		for account_name in settings.ACCOUNTS:
-			#try:
-			latest_report = itcscrape.getLastDayReport(settings.ACCOUNTS[account_name]['itunesconnect_username'], settings.ACCOUNTS[account_name]['itunesconnect_password'], date)
-			report_persister.persist(latest_report['filename'], latest_report['content'])
-			#except:
-				## Download failed (timeout or report not available yet)
-				## Send email to administrator
-				#message = mail.EmailMessage(sender=settings.SETTINGS['admin_email_address'],
-								   #subject='[ASM] Report job failed for account: ' + account_name)
-				#message.to = settings.SETTINGS['admin_email_address']
-				#message.body = 'Failed to download the iTunes Connect sales report for: ' + date
-				#message.send()
+			try:
+                latest_report = itcscrape.getLastDayReport(settings.ACCOUNTS[account_name]['itunesconnect_username'], settings.ACCOUNTS[account_name]['itunesconnect_password'], date)
+                report_persister.persist(latest_report['filename'], latest_report['content'])
+			except:
+				# Download failed (timeout or report not available yet)
+				# Send email to administrator
+				message = mail.EmailMessage(sender=settings.SETTINGS['admin_email_address'],
+								   subject='[ASM] Report job failed for account: ' + account_name)
+				message.to = settings.SETTINGS['admin_email_address']
+				message.body = 'Failed to download the iTunes Connect sales report for: ' + date
+				message.send()
 
 def main():
 	application = webapp.WSGIApplication([
