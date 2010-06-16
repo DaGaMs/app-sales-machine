@@ -26,15 +26,24 @@ CATEGORIES = {
 								},
 		# No need to specify the popId key for all other categories
 		# popId will be determined by pull_rankings.py
-				"Games"			: {
-									"genreId": 6014
-								},
-				"Lifestyle"		: {
-									"genreId": 6012
-								},
-				"News"		  : {
-									"genreId": 6009
-								},
+                "Games"			: {
+                                                        "genreId": 6014
+                                                },
+                "Lifestyle"		: {
+                                                        "genreId": 6012
+                                                },
+                "Navigation"		: {
+                                                        "genreId": 6010
+                                                },
+                "News"		  : {
+                                                        "genreId": 6009
+                                                },
+                "Games/Arcade"	  : {
+                                                         "genreId": 7003
+                                                },
+                "Games/Family"	  : {
+                                                         "genreId": 7009
+                                                },
                 "News Gross"  : {
                                     "genreId": 6009,
                                     "popId": 46

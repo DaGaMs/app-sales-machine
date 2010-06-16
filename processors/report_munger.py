@@ -72,14 +72,14 @@ class AppStoreSalesDataMunger(object):
 			if row[0] != 'APPLE':
 				continue
 
-			print row
+			#print row
 			rowFields = {}
 			rowFields['productID']		= row[2]
 			rowFields['date']			= time.strptime( row[11], '%m/%d/%Y' )
 			try:
-				rowFields['salesType']		= int(row[8][0], 16)
+				rowFields['salesType']		= int(row[8], 16)
 			except ValueError, e:
-				s = row[8][0].replace('IA', '')
+				s = row[8].replace('IA', '')
 				# in-app purchases get int 100 + product id
 				rowFields['salesType']		= 100 + int(s)
 				
