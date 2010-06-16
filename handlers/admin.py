@@ -102,4 +102,3 @@ class iPhoneHandler(webapp.RequestHandler):
 		self.response.out.write(template.render(template_path, { 'pid': pid }))
 
 
-
