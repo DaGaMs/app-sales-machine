@@ -15,6 +15,7 @@ import logging
 import settings
 import models.data
 from chart import SalesChart
+import jobs.app_store_codes
 
 class EmailReport(webapp.RequestHandler):
 
