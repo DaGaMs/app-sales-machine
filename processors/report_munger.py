@@ -63,6 +63,7 @@ class AppStoreSalesDataMunger(object):
 		### First pass, toss everything we don't need and dictionarize
 		daySalesRows = []
 		dayUpgradeRows = []
+		dayIAPRows = []
 		currencyConverter = XavierMediaCurrencyConverter()
 		reader = csv.reader( StringIO.StringIO(day), 'excel-tab' ) #This is probably overkill, but what the hell
 		for row in reader:
@@ -75,7 +76,13 @@ class AppStoreSalesDataMunger(object):
 			rowFields = {}
 			rowFields['productID']		= row[2]
 			rowFields['date']			= time.strptime( row[11], '%m/%d/%Y' )
-			rowFields['salesType']		= int(row[8][0], 16)
+			try:
+				rowFields['salesType']		= int(row[8][0], 16)
+			except ValueError, e:
+				s = row[8][0].replace('IA', '')
+				# in-app purchases get int 100 + product id
+				rowFields['salesType']		= 100 + int(s)
+				
 			rowFields['units']			= int(row[9])
 
 			rowFields['buyerCurrencyType']		= row[15]
