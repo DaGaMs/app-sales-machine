@@ -31,16 +31,17 @@ def store_ratings(pid, store_id):
 		return None
 
 	def parse(html):
-		stars, total_number_of_ratings = re.compile("rating.*?aria-label='(.*?) star.*?rating-count.>(.*?) Ratings", re.S).findall(html)[0]
+		stars, total_number_of_ratings = re.compile("rating.*?aria-label='(.*?) star.*?rating-count.>(.*?) Rating", re.S).findall(html)[0]
 
-		votes = re.compile("class=\"vote\" .*?aria-label='(.*?) stars?, (.*?) ratings").findall(html)
+		votes = re.compile("class=\"vote\" .*?aria-label='(.*?) stars?, (.*?) rating").findall(html)
 		return stars, total_number_of_ratings, votes
 	ratings_html = re.compile("all versions:.*?rating-url", re.S).findall(html)[0]
 	stars, total_number_of_ratings, votes = parse(ratings_html)
-	args = (pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
-	logging.info(args)
-	alerts.ratings(*args)
-	persist_rating(*args)
+	if total_number_of_ratings > 0:
+		args = (pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
+		logging.debug("Ratings: %s" % args)
+		alerts.ratings(*args)
+		persist_rating(*args)
 
 class RatingsJob(webapp.RequestHandler):
 	def get(self):
