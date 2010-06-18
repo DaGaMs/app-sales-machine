@@ -18,7 +18,9 @@ class RankingsJob(webapp.RequestHandler):
 		for pid in settings.PRODUCTS:
 			group = ranking_persister.persist_ranking_group(pid)
 			paid = settings.PRODUCTS[pid]['paid']
-			iPad = settings.PRODUCTS[pid]['iPad']
+			iPad = False
+			if settings.PRODUCTS[pid].has_key('iPad'):
+				iPad = settings.PRODUCTS[pid]['iPad']
 			category_name = settings.PRODUCTS[pid]['category_name']
 			category = jobs.app_store_codes.CATEGORIES[category_name]
 

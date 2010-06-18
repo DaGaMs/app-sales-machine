@@ -3,7 +3,11 @@ version: 1
 runtime: python
 api_version: 1
 
-handlers:
+handlers:    
+- url: /_ah/queue/deferred
+  script: $PYTHON_LIB/google/appengine/ext/deferred/deferred.py
+  login: admin
+
 - url: /ui
   static_dir: ui
 

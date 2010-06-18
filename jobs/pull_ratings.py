@@ -39,7 +39,6 @@ def store_ratings(pid, store_id):
 	stars, total_number_of_ratings, votes = parse(ratings_html)
 	if total_number_of_ratings > 0:
 		args = (pid, country, stars, int(total_number_of_ratings), int(votes[0][1]), int(votes[1][1]), int(votes[2][1]), int(votes[3][1]), int(votes[4][1]))
-		logging.debug("Ratings: %s" % args)
 		alerts.ratings(*args)
 		persist_rating(*args)
 
